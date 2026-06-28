@@ -21,6 +21,7 @@ services:
       VIKUNJA_DATABASE_USER: ${POSTGRES_USER:-vikunja}
       VIKUNJA_DATABASE_DATABASE: ${POSTGRES_DB:-vikunja}
       VIKUNJA_SERVICE_SECRET: ${VIKUNJA_SERVICE_SECRET}
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: ${VIKUNJA_SERVICE_ENABLEREGISTRATION:-false}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK_NAME:-traefik_default}"
