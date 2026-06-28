@@ -24,7 +24,7 @@ Git-ops Docker Compose project for deploying [Vikunja](https://vikunja.io), a ta
 | `TRAEFIK_NETWORK_NAME` | Traefik external network | Yes | `traefik_default` |
 | `INTERNAL_NETWORK_NAME` | Internal network name | No | `vikunja_internal` |
 | `DB_VOLUME_NAME` | Volume for Postgres data | No | `vikunja_db-data` |
-| `DATA_PATH` | Path for Vikunja files | No | `./files` |
+| `FILES_VOLUME_NAME` | Volume for Vikunja files | No | `vikunja_files` |
 | `SERVICE_HOST` | Hostname for Traefik routing | Yes | `vikunja.yourdomain.com` |
 | `TRAEFIK_CERTRESOLVER` | Traefik cert resolver | Yes | `myresolver` |
 | `VIKUNJA_SERVICE_PUBLICURL` | Public URL of the service | Yes | `https://vikunja.yourdomain.com` |
