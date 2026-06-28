@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  vikunja:
+    image: ${SERVICE_IMAGE:-ghcr.io/korjavin/vikunja-vendor:latest}
+    container_name: ${SERVICE_CONTAINER_NAME:-vikunja}
+    restart: unless-stopped
+    depends_on:
+      vikunja-db:
+        condition: service_healthy
+    networks:
+      - internal
+      - traefik_network
+    volumes:
+      - ${DATA_PATH:-./files}:/app/vikunja/files
+    environment:
+      VIKUNJA_SERVICE_PUBLICURL: ${VIKUNJA_SERVICE_PUBLICURL}
+      VIKUNJA_DATABASE_HOST: ${DB_CONTAINER_NAME:-vikunja-db}
+      VIKUNJA_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_USER: ${POSTGRES_USER:-vikunja}
+      VIKUNJA_DATABASE_DATABASE: ${POSTGRES_DB:-vikunja}
+      VIKUNJA_SERVICE_SECRET: ${VIKUNJA_SERVICE_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK_NAME:-traefik_default}"
+      - "traefik.http.routers.vikunja.rule=Host(`${SERVICE_HOST}`)"
+      - "traefik.http.routers.vikunja.entrypoints=websecure"
+      - "traefik.http.routers.vikunja.tls.certresolver=${TRAEFIK_CERTRESOLVER:-myresolver}"
+      - "traefik.http.services.vikunja.loadbalancer.server.port=3456"
+
+  vikunja-db:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    container_name: ${DB_CONTAINER_NAME:-vikunja-db}
+    restart: unless-stopped
+    networks:
+      - internal
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-vikunja}
+      POSTGRES_USER: ${POSTGRES_USER:-vikunja}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U $$POSTGRES_USER"]
+      interval: 2s
+      start_period: 30s
+
+networks:
+  internal:
+    name: ${INTERNAL_NETWORK_NAME:-vikunja_internal}
+  traefik_network:
+    external: true
+    name: ${TRAEFIK_NETWORK_NAME:-traefik_default}
+
+volumes:
+  db-data:
+    name: ${DB_VOLUME_NAME:-vikunja_db-data}
